@@ -1,8 +1,8 @@
-from typing import Any
+from typing import *
 from pygame import *
 from random import randint
 class GameSprite(sprite.Sprite):
-        def __init__(self,player_image,player_speed,player_x,player_y, size_x, size_y):
+        def __init__(self,player_image,player_x,player_y,player_speed, size_x, size_y):
                 super().__init__()
                 self.image = transform.scale(image.load(player_image), (size_x, size_y))
                 self.speed = player_speed
@@ -26,17 +26,7 @@ class Player(GameSprite):
                     self.rect.y -= self.speed
                 if keys_pressed[K_s]:
                     self.rect.y += self.speed
-class enemy(GameSprite):
-        def update(self):
-                self.rect.x += self.speed
-                global lost
-                if self.rect.y > win_height:
-                        self.rect.x = randint(80,win_width - 80)     
-                        self.rect.y = 0
-                        lost = lost + 1                    
-                        
-            
-win_width = 700
+win_width = 600
 win_height = 500
 window = display.set_mode(
     (win_width, win_height)
@@ -47,22 +37,30 @@ background = transform.scale(
     (win_width, win_height)
 )
 
-platform_l = Player("platforma 1.jpg",10,650, win_height - 100, 50, 150)
-platform_2 = Player("platforma 2.jpg",10,-5, win_height - 100, 50, 150)
-pilki = sprite.Group()
+platform_l = Player("platforma 1.jpg",30,200,4,50,150)
+platform_2 = Player("platforma 2.jpg",520,200,4,50,150)
+ball = GameSprite("piłkaaaaa.png",200, 200, 4, 50, 50)
 
-       
+font.init()
+font1 = font.Font(None, 35)
+lose1 = font1.render(
+       'PLAYER 1 LOSES!', True, (180,0,0)
+)                          
+lose2 = font1.render(
+       'PLAYER 2 LOSES!', True, (180,0,0)
+)                                              
 
 
 
-
+speed_x = 3
+speed_y = 3
 #pętla gry 
 clock = time.Clock()
 FPS = 60
 finish = False
 game = True
 while game:
-        window.blit(background,(0,0))      
+             
         
         
         
@@ -71,17 +69,30 @@ while game:
                         game = False
 
         if finish != True:
+               window.blit(background,(0,0)) 
+               ball.rect.x += speed_x
+               ball.rect.y += speed_y
                platform_l.update_r()
                platform_2.update_l()
-               platform_l.reset()
-               platform_2.reset()
+               if ball.rect.y > win_height - 50 or ball.rect.y < 0:
+                      speed_y *= -1
+               if sprite.collide_rect(platform_l, ball )or sprite.collide_rect(platform_2, ball):
+                        speed_x *= -1 
+               if ball.rect.x <0 : 
+                        finish = True
+                        window.blit(lose1, (200,200))
+               if ball.rect.x > win_width - 50: 
+                        finish = True
+                        window.blit(lose2, (200,200))
 
 
                
                        
 
-
-               display.update()
+               platform_l.reset()
+               platform_2.reset()
+               ball.reset() 
+        display.update()
 
                
         
